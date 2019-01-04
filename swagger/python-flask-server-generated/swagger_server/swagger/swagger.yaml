@@ -13,7 +13,7 @@ info:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 host: "127.0.0.1:8080"
-basePath: "/"
+basePath: "/v0"
 tags:
 - name: "setup"
   description: "Everything about your raspi setup"
@@ -91,6 +91,36 @@ paths:
         - "write:raspi"
         - "read:raspi"
       x-swagger-router-controller: "swagger_server.controllers.setup_controller"
+  /operate/schedules:
+    get:
+      tags:
+      - "operate"
+      summary: "Get the Schedules that all your raspi held"
+      operationId: "get_schedule"
+      produces:
+      - "application/json"
+      - "application/xml"
+      parameters:
+      - name: "utc_date"
+        in: "query"
+        description: "ISO8601 by UTC"
+        required: true
+        type: "string"
+      - name: "username"
+        in: "query"
+        description: "The user name for login"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Schedule"
+        400:
+          description: "Invalid date format is supplied"
+      x-swagger-router-controller: "swagger_server.controllers.operate_controller"
   /user:
     post:
       tags:
@@ -371,6 +401,40 @@ definitions:
     example:
       name: "name"
       id: 1
+  Operation:
+    type: "object"
+    properties:
+      command:
+        type: "string"
+      repeat:
+        type: "number"
+    xml:
+      name: "Operation"
+  Operations:
+    xml:
+      name: "Operations"
+    type: "array"
+    items:
+      $ref: "#/definitions/Operation"
+  Schedule:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      time:
+        type: "string"
+        example: "2018-01-01T00:00Z"
+      message:
+        type: "string"
+      operations:
+        $ref: "#/definitions/Operations"
+    xml:
+      name: "Schedule"
+    example:
+      operations: ""
+      name: "name"
+      time: "2018-01-01T00:00Z"
+      message: "message"
   Raspi:
     type: "object"
     required:
